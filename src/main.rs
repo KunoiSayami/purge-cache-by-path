@@ -17,6 +17,8 @@
  ** You should have received a copy of the GNU Affero General Public License
  ** along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
+mod requester;
+
 use clap::Clap;
 use std::process;
 #[derive(Clap)]
@@ -31,7 +33,10 @@ struct Opts {
     git_bin_path: String,
 
     #[clap(long)]
-    token: String
+    token: String,
+
+    #[clap(long)]
+    zone: String,
 
 }
 
