@@ -38,6 +38,8 @@ struct Opts {
     #[clap(long)]
     zone: String,
 
+    #[clap(long)]
+    domain: String,
 }
 
 fn main() {
@@ -50,5 +52,7 @@ fn main() {
         .output()
         .unwrap()
         .stdout;
-    println!("Bin path: {}, Token: {}, Output: {}", opts.git_bin_path, opts.token, String::from_utf8(git_output).unwrap());
+    let output_string = String::from_utf8(git_output).unwrap();
+    requester::Requester::new(&opts.git_bin_path, &opts.token, &opts.domain,&output_string.lines().map(|s| s.to_string()).collect());
+    println!("Bin path: {}, Token: {}, Output: {}", opts.git_bin_path, opts.token, output_string);
 }
