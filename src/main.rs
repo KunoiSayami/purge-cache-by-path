@@ -40,6 +40,9 @@ struct Opts {
 
     #[clap(long)]
     domain: String,
+
+    #[clap(long, default_value = false)]
+    dry_run: bool,
 }
 
 fn main() {
