@@ -18,40 +18,54 @@
  ** along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 mod requester;
+mod configure;
 
-use clap::Clap;
+use clap::{App, Arg};
 use std::process;
 use anyhow::Result;
-
-#[derive(Clap)]
-struct Opts {
-    #[cfg(not(windows))]
-    #[clap(long, default_value = "/usr/bin/git")]
-    git_bin_path: String,
-
-
-    #[cfg(windows)]
-    #[clap(long, default_value = "C:\\Program Files\\Git\\mingw64\\bin\\git.exe")]
-    git_bin_path: String,
-
-    #[clap(long)]
-    token: String,
-
-    #[clap(long)]
-    zone: String,
-
-    #[clap(long)]
-    domain: String,
-
-    #[clap(long)]
-    dry_run: bool,
-}
+use configure::DEFAULT_GIT_BIN_PATH;
+use std::path::Path;
 
 fn main() -> Result<()> {
     env_logger::init();
-    let opts: Opts = Opts::parse();
+    //let opts: Opts = Opts::parse();
 
-    let git_output = process::Command::new(opts.git_bin_path.clone())
+    let arg_matches = App::new(env!("CARGO_PKG_NAME"))
+        .arg(Arg::new("token")
+            .takes_value(true)
+            .long("token")
+            .require_equals(true))
+        .arg(Arg::new("domain")
+            .long("domain")
+            .takes_value(true)
+            .require_equals(true))
+        .arg(Arg::new("zone")
+            .long("zone")
+            .takes_value(true)
+            .require_equals(true))
+        .arg(Arg::new("git_bin_path")
+            .takes_value(true)
+            .long("git_bin")
+            .default_value(DEFAULT_GIT_BIN_PATH))
+        .arg(Arg::new("cfg")
+            .aliases(&["config", "configure"])
+            //.exclusive(true)
+            .conflicts_with_all(&["token", "domain", "zone"])
+            .takes_value(true))
+        .arg(Arg::new("dry_run")
+            .long("dry-run")
+            .aliases(&["test", "dry", "dr"]))
+        .get_matches();
+
+    let config = if let Some(cfg_path) = arg_matches.value_of("cfg") {
+        let path = Path::new(cfg_path);
+        let context = std::fs::read_to_string(path)?;
+        toml::from_str(context.as_str())?
+    } else {
+        configure::Configure::from(&arg_matches)
+    };
+
+    let git_output = process::Command::new(config.get_git_bin())
         .arg("diff")
         .arg("--name-status")
         .arg("HEAD^")
@@ -59,12 +73,12 @@ fn main() -> Result<()> {
         .unwrap()
         .stdout;
     let output_string = String::from_utf8(git_output).unwrap();
-    let cf_requester = requester::Requester::new(&opts.token, &opts.zone, &opts.domain,&output_string.lines().map(|s| s.to_string()).collect());
+    let cf_requester = config.to_requester(&output_string.lines().map(|s| s.to_string()).collect());
     tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()
         .unwrap()
-        .block_on(cf_requester.send(opts.dry_run))?;
-    println!("Bin path: {}, Token: {}, Output: {}", opts.git_bin_path, opts.token, output_string);
+        .block_on(cf_requester.send(arg_matches.is_present("dry_run")))?;
+    println!("Bin path: {}, Token: {}, Output: {}", config.get_git_bin(), config.get_token(), output_string);
     Ok(())
 }

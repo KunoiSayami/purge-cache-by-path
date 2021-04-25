@@ -20,8 +20,7 @@
 
 use serde::{Serialize, Deserialize};
 use anyhow::Result;
-use std::collections::HashMap;
-use reqwest::header::{HeaderValue, HeaderMap};
+use reqwest::header::HeaderMap;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct FileStatus {
@@ -77,7 +76,7 @@ pub struct Requester {
 }
 
 impl Requester {
-    pub fn new(token: &String, zone: &String, domain: &String, files: &Vec<String>) -> Self {
+    pub fn new(token: &str, zone: &str, domain: &str, files: &Vec<String>) -> Self {
         let mut v: Vec<String> = Default::default();
         let mut purge_all = false;
         for file_status in files {
@@ -101,8 +100,8 @@ impl Requester {
             v.push(format!("{}/{}", domain, folder_name));
         }
         Self {
-            token: token.clone(),
-            zone: zone.clone(),
+            token: token.to_string(),
+            zone: zone.to_string(),
             urls: UrlFilePath { files: v },
             purge_all
         }
