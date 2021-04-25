@@ -18,9 +18,9 @@
  ** along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use serde::{Serialize, Deserialize};
 use anyhow::Result;
 use reqwest::header::HeaderMap;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct FileStatus {
@@ -83,13 +83,17 @@ impl Requester {
             let status = FileStatus::from(file_status);
             let mut folder_name = status.get_folder_name();
 
-            if folder_name.starts_with('.') || vec!["archetypes"].into_iter().any(|x| folder_name.eq(x)) {
-                continue
+            if folder_name.starts_with('.')
+                || vec!["archetypes"].into_iter().any(|x| folder_name.eq(x))
+            {
+                continue;
             }
             let folder_vec = status.get_path_vec();
             match folder_name {
-                "content" | "static" => if folder_vec.len() > 1 {
-                    folder_name = folder_vec[1]
+                "content" | "static" => {
+                    if folder_vec.len() > 1 {
+                        folder_name = folder_vec[1]
+                    }
                 }
                 &_ => {
                     purge_all = true;
@@ -103,21 +107,19 @@ impl Requester {
             token: token.to_string(),
             zone: zone.to_string(),
             urls: UrlFilePath { files: v },
-            purge_all
+            purge_all,
         }
     }
 
     pub async fn send(&self, dry_run: bool) -> Result<()> {
         if !self.purge_all && self.urls.len() == 0 {
             log::info!("There is nothing should purge");
-            return Ok(())
+            return Ok(());
         }
-        let mut map= HeaderMap::new();
+        let mut map = HeaderMap::new();
         map.insert("Authorization", format!("Bearer {}", self.token).parse()?);
         map.insert("Content-Type", "application/json".parse()?);
-        let client = reqwest::Client::builder()
-            .default_headers(map)
-            .build()?;
+        let client = reqwest::Client::builder().default_headers(map).build()?;
 
         let post_text = if self.purge_all {
             r#"{"purge_everything":true}"#.to_string()
@@ -126,9 +128,13 @@ impl Requester {
         };
         if dry_run {
             log::info!("Dry run: {}", post_text);
-            return Ok(())
+            return Ok(());
         }
-        let response = client.post(format!("https://api.cloudflare.com/client/v4/zones/{}/purge_cache", self.zone))
+        let response = client
+            .post(format!(
+                "https://api.cloudflare.com/client/v4/zones/{}/purge_cache",
+                self.zone
+            ))
             .body(post_text)
             .send()
             .await?;

@@ -17,44 +17,55 @@
  ** You should have received a copy of the GNU Affero General Public License
  ** along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-mod requester;
 mod configure;
+mod requester;
 
-use clap::{App, Arg};
-use std::process;
 use anyhow::Result;
+use clap::{App, Arg};
 use configure::DEFAULT_GIT_BIN_PATH;
 use std::path::Path;
+use std::process;
 
 fn main() -> Result<()> {
     env_logger::init();
-    //let opts: Opts = Opts::parse();
 
     let arg_matches = App::new(env!("CARGO_PKG_NAME"))
-        .arg(Arg::new("token")
-            .takes_value(true)
-            .long("token")
-            .require_equals(true))
-        .arg(Arg::new("domain")
-            .long("domain")
-            .takes_value(true)
-            .require_equals(true))
-        .arg(Arg::new("zone")
-            .long("zone")
-            .takes_value(true)
-            .require_equals(true))
-        .arg(Arg::new("git_bin_path")
-            .takes_value(true)
-            .long("git_bin")
-            .default_value(DEFAULT_GIT_BIN_PATH))
-        .arg(Arg::new("cfg")
-            .aliases(&["config", "configure"])
-            //.exclusive(true)
-            .conflicts_with_all(&["token", "domain", "zone"])
-            .takes_value(true))
-        .arg(Arg::new("dry_run")
-            .long("dry-run")
-            .aliases(&["test", "dry", "dr"]))
+        .arg(
+            Arg::new("token")
+                .takes_value(true)
+                .long("token")
+                .require_equals(true),
+        )
+        .arg(
+            Arg::new("domain")
+                .long("domain")
+                .takes_value(true)
+                .require_equals(true),
+        )
+        .arg(
+            Arg::new("zone")
+                .long("zone")
+                .takes_value(true)
+                .require_equals(true),
+        )
+        .arg(
+            Arg::new("git_bin_path")
+                .takes_value(true)
+                .long("git_bin")
+                .default_value(DEFAULT_GIT_BIN_PATH),
+        )
+        .arg(
+            Arg::new("cfg")
+                .aliases(&["config", "configure"])
+                //.exclusive(true)
+                .conflicts_with_all(&["token", "domain", "zone"])
+                .takes_value(true),
+        )
+        .arg(
+            Arg::new("dry_run")
+                .long("dry-run")
+                .aliases(&["test", "dry", "dr"]),
+        )
         .get_matches();
 
     let config = if let Some(cfg_path) = arg_matches.value_of("cfg") {
@@ -79,6 +90,5 @@ fn main() -> Result<()> {
         .build()
         .unwrap()
         .block_on(cf_requester.send(arg_matches.is_present("dry_run")))?;
-    println!("Bin path: {}, Token: {}, Output: {}", config.get_git_bin(), config.get_token(), output_string);
     Ok(())
 }

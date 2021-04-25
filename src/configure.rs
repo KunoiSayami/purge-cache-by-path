@@ -17,9 +17,9 @@
  ** You should have received a copy of the GNU Affero General Public License
  ** along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-use serde::{Serialize, Deserialize};
 use crate::requester;
 use clap::ArgMatches;
+use serde::{Deserialize, Serialize};
 
 #[cfg(windows)]
 pub const DEFAULT_GIT_BIN_PATH: &str = "C:\\Program Files\\Git\\mingw64\\bin\\git.exe";
@@ -32,7 +32,7 @@ pub struct Configure {
     git_bin: String,
     token: String,
     zone: String,
-    domain: String
+    domain: String,
 }
 
 impl Configure {
@@ -67,7 +67,7 @@ impl From<&clap::ArgMatches> for Configure {
             git_bin: git_bin_path.to_string(),
             token: token.to_string(),
             zone: zone.to_string(),
-            domain: domain.to_string()
+            domain: domain.to_string(),
         }
     }
 }
