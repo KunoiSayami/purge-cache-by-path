@@ -108,7 +108,7 @@ impl Requester {
         }
     }
 
-    async fn send(&self, dry_run: bool) -> Result<()> {
+    pub async fn send(&self, dry_run: bool) -> Result<()> {
         if !self.purge_all && self.urls.len() == 0 {
             log::info!("There is nothing should purge");
             return Ok(())
@@ -121,12 +121,12 @@ impl Requester {
             .build()?;
 
         let post_text = if self.purge_all {
-            r#"{"purge_everything":true}"#
+            r#"{"purge_everything":true}"#.to_string()
         } else {
             serde_json::to_string(&self.urls).unwrap()
         };
         if dry_run {
-            println!("{}", post_text);
+            log::info!("Dry run: {}", post_text);
             return Ok(())
         }
         let response = client.post(format!("https://api.cloudflare.com/client/v4/zones/{}/purge_cache", self.zone))

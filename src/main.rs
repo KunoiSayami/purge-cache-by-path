@@ -21,6 +21,8 @@ mod requester;
 
 use clap::Clap;
 use std::process;
+use anyhow::Result;
+
 #[derive(Clap)]
 struct Opts {
     #[cfg(not(windows))]
@@ -41,11 +43,12 @@ struct Opts {
     #[clap(long)]
     domain: String,
 
-    #[clap(long, default_value = false)]
+    #[clap(long)]
     dry_run: bool,
 }
 
-fn main() {
+fn main() -> Result<()> {
+    env_logger::init();
     let opts: Opts = Opts::parse();
 
     let git_output = process::Command::new(opts.git_bin_path.clone())
@@ -56,6 +59,12 @@ fn main() {
         .unwrap()
         .stdout;
     let output_string = String::from_utf8(git_output).unwrap();
-    requester::Requester::new(&opts.git_bin_path, &opts.token, &opts.domain,&output_string.lines().map(|s| s.to_string()).collect());
+    let cf_requester = requester::Requester::new(&opts.token, &opts.zone, &opts.domain,&output_string.lines().map(|s| s.to_string()).collect());
+    tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .unwrap()
+        .block_on(cf_requester.send(opts.dry_run))?;
     println!("Bin path: {}, Token: {}, Output: {}", opts.git_bin_path, opts.token, output_string);
+    Ok(())
 }
