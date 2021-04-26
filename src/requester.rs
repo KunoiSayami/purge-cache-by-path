@@ -97,8 +97,7 @@ impl Requester {
                 "content" | "static" => {
                     if folder_vec[1].eq("posts") && folder_vec.len() > 2 {
                         folder_name = &content_path
-                    }
-                    else {
+                    } else {
                         folder_name = folder_vec[1]
                     }
                 }

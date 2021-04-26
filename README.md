@@ -36,15 +36,17 @@ ARGS:
     <cfg>    Specify configure file without passing arguments from command line
 
 FLAGS:
-        --dry-run    Run without send any request to cloudflare api server
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+        --dry-run         Run without send any request to cloudflare api server
+    -h, --help            Prints help information
+    -V, --version         Prints version information
+        --with-systemd    Pass this argument to disable timestamp in log output
 
 OPTIONS:
         --domain=<domain>           Your website domain
         --git_bin <git_bin_path>    [default: /usr/bin/git]
         --token=<token>             CloudFlare api token
         --zone=<zone>               Your domain zone ID
+
 ```
 
 ## License

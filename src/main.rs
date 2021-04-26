@@ -23,12 +23,11 @@ mod requester;
 use anyhow::Result;
 use clap::{App, Arg};
 use configure::DEFAULT_GIT_BIN_PATH;
+use std::io::Write;
 use std::path::Path;
 use std::process;
 
 fn main() -> Result<()> {
-    env_logger::init();
-
     let arg_matches = App::new(env!("CARGO_PKG_NAME"))
         .arg(
             Arg::new("token")
@@ -72,11 +71,28 @@ fn main() -> Result<()> {
                 .about("Run without send any request to cloudflare api server")
                 .aliases(&["test", "dry", "dr"]),
         )
+        .arg(
+            Arg::new("with-systemd")
+                .long("with-systemd")
+                .about("Pass this argument to disable timestamp in log output"),
+        )
         .get_matches();
 
-    if !arg_matches.is_present("cfg") && ! vec!["token", "zone", "domain"].into_iter().all(|x| arg_matches.is_present(x)) {
+    if !arg_matches.is_present("cfg")
+        && !vec!["token", "zone", "domain"]
+            .into_iter()
+            .all(|x| arg_matches.is_present(x))
+    {
         eprintln!("Please check arguments (use --help)");
         std::process::exit(1);
+    }
+
+    if arg_matches.is_present("with-systemd") {
+        env_logger::Builder::from_default_env()
+            .format(|buf, record| writeln!(buf, "[{}] - {}", record.level(), record.args()))
+            .init()
+    } else {
+        env_logger::init();
     }
 
     let config = if let Some(cfg_path) = arg_matches.value_of("cfg") {

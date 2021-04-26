@@ -45,7 +45,7 @@ impl Default for GitBinString {
 
 impl From<&str> for GitBinString {
     fn from(s: &str) -> Self {
-        Self {0: s.to_string()}
+        Self { 0: s.to_string() }
     }
 }
 
