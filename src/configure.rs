@@ -20,6 +20,7 @@
 use crate::requester;
 use clap::ArgMatches;
 use serde::{Deserialize, Serialize};
+use std::fmt::Formatter;
 
 #[cfg(windows)]
 pub const DEFAULT_GIT_BIN_PATH: &str = "C:\\Program Files\\Git\\mingw64\\bin\\git.exe";
@@ -28,8 +29,36 @@ pub const DEFAULT_GIT_BIN_PATH: &str = "C:\\Program Files\\Git\\mingw64\\bin\\gi
 pub const DEFAULT_GIT_BIN_PATH: &str = "/usr/bin/git";
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+struct GitBinString(String);
+
+impl GitBinString {
+    fn get_path(&self) -> &String {
+        &self.0
+    }
+}
+
+impl Default for GitBinString {
+    fn default() -> Self {
+        Self(DEFAULT_GIT_BIN_PATH.to_string())
+    }
+}
+
+impl From<&str> for GitBinString {
+    fn from(s: &str) -> Self {
+        Self {0: s.to_string()}
+    }
+}
+
+impl std::fmt::Display for GitBinString {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Configure {
-    git_bin: String,
+    #[serde(default)]
+    git_bin: GitBinString,
     token: String,
     zone: String,
     domain: String,
@@ -41,7 +70,7 @@ impl Configure {
     }
 
     pub fn get_git_bin(&self) -> &String {
-        &self.git_bin
+        self.git_bin.get_path()
     }
 
     pub fn get_token(&self) -> &String {
@@ -64,7 +93,7 @@ impl From<&clap::ArgMatches> for Configure {
         let domain = matches.value_of("domain").unwrap();
         let token = matches.value_of("token").unwrap();
         Configure {
-            git_bin: git_bin_path.to_string(),
+            git_bin: GitBinString::from(git_bin_path),
             token: token.to_string(),
             zone: zone.to_string(),
             domain: domain.to_string(),

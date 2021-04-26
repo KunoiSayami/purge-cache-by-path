@@ -34,17 +34,20 @@ fn main() -> Result<()> {
             Arg::new("token")
                 .takes_value(true)
                 .long("token")
+                .about("CloudFlare api token")
                 .require_equals(true),
         )
         .arg(
             Arg::new("domain")
                 .long("domain")
+                .about("Your website domain")
                 .takes_value(true)
                 .require_equals(true),
         )
         .arg(
             Arg::new("zone")
                 .long("zone")
+                .about("Your domain zone ID")
                 .takes_value(true)
                 .require_equals(true),
         )
@@ -58,15 +61,23 @@ fn main() -> Result<()> {
             Arg::new("cfg")
                 .aliases(&["config", "configure"])
                 //.exclusive(true)
+                .about("Specify configure file without passing arguments from command line")
+                .require_equals(true)
                 .conflicts_with_all(&["token", "domain", "zone"])
                 .takes_value(true),
         )
         .arg(
             Arg::new("dry_run")
                 .long("dry-run")
+                .about("Run without send any request to cloudflare api server")
                 .aliases(&["test", "dry", "dr"]),
         )
         .get_matches();
+
+    if !arg_matches.is_present("cfg") && ! vec!["token", "zone", "domain"].into_iter().all(|x| arg_matches.is_present(x)) {
+        eprintln!("Please check arguments (use --help)");
+        std::process::exit(1);
+    }
 
     let config = if let Some(cfg_path) = arg_matches.value_of("cfg") {
         let path = Path::new(cfg_path);

@@ -1,5 +1,52 @@
 # Hugo purge CloudFlare cache by path
 
+## Configure
+
+Configure file format should like this below:
+
+```toml
+token = "<token here>"
+zone = "<zone here>"
+domain = "example.com"
+```
+
+Then, run program with configure file name
+
+```shell
+purge-cache purge.toml
+```
+
+Or you can pass arguments from command line
+
+```shell
+purge-cache --token "token" --zone "zone" --domain "domain"
+```
+
+You should run this program under your website root folder, it uses `git` command to fetch file changes.
+
+To view logs, you should set [`RUST_LOG`](https://docs.rs/env_logger/0.8.3/env_logger/#example) environment variable.
+
+## Arguments
+
+```
+USAGE:
+    purge-cache-by-path [FLAGS] [OPTIONS] [cfg]
+
+ARGS:
+    <cfg>    Specify configure file without passing arguments from command line
+
+FLAGS:
+        --dry-run    Run without send any request to cloudflare api server
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+        --domain=<domain>           Your website domain
+        --git_bin <git_bin_path>    [default: /usr/bin/git]
+        --token=<token>             CloudFlare api token
+        --zone=<zone>               Your domain zone ID
+```
+
 ## License
 
 [![](https://www.gnu.org/graphics/agplv3-155x51.png)](https://www.gnu.org/licenses/agpl-3.0.txt)

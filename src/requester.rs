@@ -89,9 +89,16 @@ impl Requester {
                 continue;
             }
             let folder_vec = status.get_path_vec();
+            debug_assert!(folder_vec.len() > 1);
+
+            // Vec length should always > 1
+            let content_path = folder_vec[1..].join("/");
             match folder_name {
                 "content" | "static" => {
-                    if folder_vec.len() > 1 {
+                    if folder_vec[1].eq("posts") && folder_vec.len() > 2 {
+                        folder_name = &content_path
+                    }
+                    else {
                         folder_name = folder_vec[1]
                     }
                 }
@@ -101,7 +108,7 @@ impl Requester {
                 }
             }
 
-            v.push(format!("{}/{}", domain, folder_name));
+            v.push(format!("https://{}/{}", domain, folder_name));
         }
         Self {
             token: token.to_string(),
