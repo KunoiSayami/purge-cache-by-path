@@ -29,6 +29,7 @@ use std::process;
 
 fn main() -> Result<()> {
     let arg_matches = App::new(env!("CARGO_PKG_NAME"))
+        .version(env!("CARGO_PKG_VERSION"))
         .arg(
             Arg::new("token")
                 .takes_value(true)

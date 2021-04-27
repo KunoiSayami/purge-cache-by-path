@@ -79,6 +79,7 @@ impl Requester {
     pub fn new(token: &str, zone: &str, domain: &str, files: &Vec<String>) -> Self {
         let mut v: Vec<String> = Default::default();
         let mut purge_all = false;
+        let mut should_add_homepage = false;
         for file_status in files {
             let status = FileStatus::from(file_status);
             let mut folder_name = status.get_folder_name();
@@ -96,9 +97,10 @@ impl Requester {
             match folder_name {
                 "content" | "static" => {
                     if folder_vec[1].eq("posts") && folder_vec.len() > 2 {
-                        folder_name = &content_path
+                        folder_name = &content_path;
+                        should_add_homepage = true;
                     } else {
-                        folder_name = folder_vec[1]
+                        folder_name = folder_vec[1];
                     }
                 }
                 &_ => {
@@ -108,6 +110,9 @@ impl Requester {
             }
 
             v.push(format!("https://{}/{}", domain, folder_name));
+        }
+        if should_add_homepage {
+            v.push(format!("https://{}/", domain))
         }
         Self {
             token: token.to_string(),
