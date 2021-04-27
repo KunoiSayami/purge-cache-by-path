@@ -112,7 +112,8 @@ impl Requester {
             v.push(format!("https://{}/{}", domain, folder_name));
         }
         if should_add_homepage {
-            v.push(format!("https://{}/", domain))
+            v.push(format!("https://{}/", domain));
+            v.push(format!("https://{}/index.xml", domain));
         }
         Self {
             token: token.to_string(),
