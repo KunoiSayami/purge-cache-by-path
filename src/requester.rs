@@ -72,7 +72,6 @@ pub struct Requester {
     token: String,
     zone: String,
     urls: UrlFilePath,
-    purge_all: bool,
 }
 
 impl Requester {
@@ -111,7 +110,9 @@ impl Requester {
 
             v.push(format!("https://{}/{}", domain, folder_name));
         }
-        if should_add_homepage {
+        if purge_all {
+            v.push(format!("https://{}/*", domain));
+        } else if should_add_homepage {
             v.push(format!("https://{}/", domain));
             v.push(format!("https://{}/index.xml", domain));
         }
@@ -119,7 +120,6 @@ impl Requester {
             token: token.to_string(),
             zone: zone.to_string(),
             urls: UrlFilePath { files: v },
-            purge_all,
         }
     }
 
@@ -133,11 +133,7 @@ impl Requester {
         map.insert("Content-Type", "application/json".parse()?);
         let client = reqwest::Client::builder().default_headers(map).build()?;
 
-        let post_text = if self.purge_all {
-            r#"{"purge_everything":true}"#.to_string()
-        } else {
-            serde_json::to_string(&self.urls).unwrap()
-        };
+        let post_text = serde_json::to_string(&self.urls).unwrap();
         if dry_run {
             log::info!("Dry run: {}", post_text);
             return Ok(());

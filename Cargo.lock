@@ -670,7 +670,7 @@ dependencies = [
 
 [[package]]
 name = "purge-cache-by-path"
-version = "1.0.3"
+version = "1.0.4"
 dependencies = [
  "anyhow",
  "clap",
