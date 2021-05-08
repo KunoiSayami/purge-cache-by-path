@@ -124,7 +124,7 @@ impl Requester {
     }
 
     pub async fn send(&self, dry_run: bool) -> Result<()> {
-        if !self.purge_all && self.urls.len() == 0 {
+        if self.urls.len() == 0 {
             log::info!("There is nothing should purge");
             return Ok(());
         }
