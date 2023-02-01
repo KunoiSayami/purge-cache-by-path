@@ -1,5 +1,5 @@
 /*
- ** Copyright (C) 2021 KunoiSayami
+ ** Copyright (C) 2021-2023 KunoiSayami
  **
  ** This file is part of purge-cache-by-path and is released under
  ** the AGPL v3 License: https://www.gnu.org/licenses/agpl-3.0.txt
@@ -43,9 +43,9 @@ impl Default for GitBinString {
     }
 }
 
-impl From<&str> for GitBinString {
-    fn from(s: &str) -> Self {
-        Self { 0: s.to_string() }
+impl From<&String> for GitBinString {
+    fn from(s: &String) -> Self {
+        Self { 0: s.clone() }
     }
 }
 
@@ -86,12 +86,12 @@ impl Configure {
     }
 }
 
-impl From<&clap::ArgMatches> for Configure {
+impl From<&ArgMatches> for Configure {
     fn from(matches: &ArgMatches) -> Self {
-        let git_bin_path = matches.value_of("git_bin_path").unwrap();
-        let zone = matches.value_of("zone").unwrap();
-        let domain = matches.value_of("domain").unwrap();
-        let token = matches.value_of("token").unwrap();
+        let git_bin_path: &String = matches.get_one("git_bin_path").unwrap();
+        let zone: &String = matches.get_one("zone").unwrap();
+        let domain: &String = matches.get_one("domain").unwrap();
+        let token: &String = matches.get_one("token").unwrap();
         Configure {
             git_bin: GitBinString::from(git_bin_path),
             token: token.to_string(),

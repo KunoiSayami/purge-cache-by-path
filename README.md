@@ -29,23 +29,20 @@ To view logs, you should set [`RUST_LOG`](https://docs.rs/env_logger/0.8.3/env_l
 ## Arguments
 
 ```
-USAGE:
-    purge-cache-by-path [FLAGS] [OPTIONS] [cfg]
+Usage: purge-cache-by-path [OPTIONS] <token> <domain> <zone> [cfg]
 
-ARGS:
-    <cfg>    Specify configure file without passing arguments from command line
+Arguments:
+  <token>   CloudFlare api token
+  <domain>  Your website domain
+  <zone>    Your domain zone ID
+  [cfg]     Specify configure file without passing arguments from command line
 
-FLAGS:
-        --dry-run         Run without send any request to cloudflare api server
-    -h, --help            Prints help information
-    -V, --version         Prints version information
-        --with-systemd    Pass this argument to disable timestamp in log output
-
-OPTIONS:
-        --domain=<domain>           Your website domain
-        --git_bin <git_bin_path>    [default: /usr/bin/git]
-        --token=<token>             CloudFlare api token
-        --zone=<zone>               Your domain zone ID
+Options:
+      --git_bin <git_bin_path>  [default: /usr/bin/git]
+      --systemd                 Pass this argument to disable timestamp in log output
+      --dry-run <dry_run>       Run without send any request to cloudflare api server
+  -h, --help                    Print help
+  -V, --version                 Print version
 
 ```
 
@@ -53,7 +50,7 @@ OPTIONS:
 
 [![](https://www.gnu.org/graphics/agplv3-155x51.png)](https://www.gnu.org/licenses/agpl-3.0.txt)
 
-Copyright (C) 2021 KunoiSayami
+Copyright (C) 2021-2023 KunoiSayami
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or any later version.
 
